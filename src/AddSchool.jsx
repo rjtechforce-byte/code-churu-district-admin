@@ -22,31 +22,22 @@ function AddSchoolPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
+  setImageFile(file);
+  setPreview(URL.createObjectURL(file));
+    const [imageFile, setImageFile] = useState(null);
+};
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setAvatar(reader.result);   // 👈 base64
-      setPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
+  const fd = new FormData();
+fd.append("schoolName", form.name);
+fd.append("address", form.address);
+fd.append("principlename", form.principal);
+fd.append("librarianname", form.librarian);
+fd.append("password", form.password);
+if (imageFile) fd.append("avatar", imageFile);
 
-  const submit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const payload = {
-        schoolName: form.name,
-        address: form.address,
-        principlename: form.principal,
-        librarianname: form.librarian,
-        password: form.password,
-        avatar, // 👈 base64
-      };
-
-      const res = await API.post("/district-admin/add-schools", payload);
+await API.post("/district-admin/add-schools", fd);
 
       alert(
         `School Created!\nID: ${res.data.schoolId}\nPassword: ${res.data.password}`
